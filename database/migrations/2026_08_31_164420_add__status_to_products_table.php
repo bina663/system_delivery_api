@@ -11,20 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_item_addons', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('order_item_id');
-
-            $table->foreignId('addon_id');
-
-            $table->integer('quantity')->default(1);
-
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->boolean('_status')->default(true);
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('_status');
+        });
     }
 };

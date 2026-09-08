@@ -6,10 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Additionals extends Model
 {
+    protected $table = 'additionals';
+
     protected $fillable = [
         'id',
         'name',
         'value',
-        'status'
+        '_status'
     ];
+
+    public function products()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_additional',
+            'additional_id',
+            'product_id'
+        );
+    }
 }

@@ -1,0 +1,19 @@
+.card.bg-orange {
+    background-color: #ff9800 !important;
+}
+.card {
+    border-radius: 10px;
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Em telas menores, reduz o efeito de hover (touch não tem hover de verdade) */
+@media (max-width: 768px) {
+    .card:hover {
+        transform: none;
+    }
+}

@@ -1,0 +1,58 @@
+
+#logo {
+    width: 100px;   /* 👈 define um tamanho fixo */
+    height: auto;   /* mantém proporção */
+}
+.nav-link {
+    position: relative;
+    transition: 0.3s;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background: #ff9800;
+    left: 0;
+    bottom: 0;
+    transition: 0.3s;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+
+.carrinho-fixo {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 350px;
+    max-height: 500px;
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 999;
+}
+
+.carrinho-fixo ul {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.whatsapp-fixo {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 70px;
+    height: 70px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    z-index: 999;
+    text-decoration: none;
+}

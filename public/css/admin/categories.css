@@ -1,0 +1,20 @@
+.category-item {
+    transform: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.category-item:hover {
+    transform: none !important;
+}
+
+.category-item.dragging {
+    background-color: #fff3cd !important;
+    border: 2px dashed #fd7e14 !important;
+    opacity: 0.9;
+    color: black !important;
+}
+
+.category-item.drag-over {
+    border-top: 3px solid #fd7e14 !important;
+    color: black !important;
+}

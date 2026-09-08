@@ -11,19 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('order_id');
-
-            $table->foreignId('product_id');
-
-            $table->integer('quantity');
-            $table->decimal('value', 10, 2);
-
-            $table->text('notes')->nullable();
-
-            $table->timestamps();
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('notes')->nullable()->after('status');
         });
     }
 
@@ -32,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('notes');
+        });
     }
 };

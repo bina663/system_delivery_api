@@ -1,0 +1,29 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+
+header {
+    display: contents; /* faz o <header> "desaparecer" do fluxo, deixando o aside direto no flex do body */
+}
+
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    min-height: 100vh;
+    background: #f8f9fa; /* ajuste pra cor real do seu menu escuro, se for o caso */
+}
+a.nav-link{
+  color: black;
+}
+
+a.nav-link.active{
+  background: #ff9800;
+  color: white;
+}
+
+.container {
+    flex: 1;
+    padding: 20px;
+}
