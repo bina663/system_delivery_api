@@ -41,7 +41,6 @@ class AdditionalsController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'value' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
             '_status' => 'required|boolean',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -65,23 +64,6 @@ class AdditionalsController extends Controller
             ->route('admin.additionals.painel')
             ->with('success', 'Produto atualizado com sucesso!');
     }
-    public function updateOrder(Request $request)
-    {
-        $additionals = $request->input('additionals');
-
-        foreach ($additionals as $additionals) {
-
-            ModelsAdditionals::where('id', $additionals['id'])
-                ->update([
-                    'sort_order' => $additionals['position'],
-                ]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Ordem das categorias atualizada com sucesso!'
-        ]);
-    }
 
     public function toggleStatus(Request $request, $id)
     {
@@ -91,18 +73,23 @@ class AdditionalsController extends Controller
 
         return response()->json(['success' => true]);
     }
-    public function destroyMultiple(Request $request)
+
+    public function deleteCategoryPermanently(Request $request, $id)
     {
-        $ids = $request->input('ids');
+        try {
+            $product = ModelsAdditionals::findOrFail($id);
 
-        ModelsAdditionals::whereIn('id', $ids)
-            ->update([
-                '_status' => false,
-            ]);
+            $product->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Categorias excluídas com sucesso!'
-        ]);
+            return redirect()
+                ->route('admin.additionals.painel')
+                ->with('success', 'Adicional deletado com sucesso!');
+
+        } catch (Exception $e) {
+
+            return redirect()
+                ->route('admin.additionals.painel')
+                ->with('error', 'Erro ao deletar adicional.');
+        }
     }
 }

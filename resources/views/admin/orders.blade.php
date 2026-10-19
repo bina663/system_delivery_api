@@ -22,6 +22,7 @@
                     'preparing'  => ['label' => 'Preparando',   'class' => 'text-light bg-orange'],
                     'out_for_delivery' => ['label' => 'Saiu para entrega', 'class' => 'text-light bg-danger'],
                     'delivery' => ['label' => 'Entregue',   'class' => 'text-light bg-success'],
+                    'cancelled' => ['label' => 'Cancelado',   'class' => 'text-light bg-secondary'],
                 ];
                 $statusInfo = $statusMap[$order->status] ?? ['label' => $order->status, 'class' => 'text-dark bg-secondary'];
 
@@ -165,6 +166,11 @@
                         <button class="btn btn-sm btn-success" disabled>Pedido finalizado</button>
                     @endif
 
+                    <form action="{{ route('admin.orders.cancel', $order->id) }}" method="POST" class="m-0" onsubmit="return confirm('Cancelar este pedido?')">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+                    </form>
                     <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="m-0" onsubmit="return confirm('Remover este pedido?')">
                         @csrf
                         @method('DELETE')

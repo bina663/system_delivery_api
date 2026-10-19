@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Branch extends Model
+{
+    protected $table = 'branch';
+    protected $fillable = [
+        'id',
+        'name',
+        'whatsapp',
+        'cep',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'uf',
+        'image',
+        'shipping_value'
+    ];
+}

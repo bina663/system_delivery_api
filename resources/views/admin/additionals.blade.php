@@ -239,7 +239,7 @@
                                             class="toggle-status-form"
                                             action="{{ route('admin.additionals.toggle-status', $additional->id) }}"
                                             method="POST"
-                                            data-confirm="Tem certeza que deseja {{ $additional->_status ? 'desativar' : 'ativar' }} este adicional?"
+                                            data-confirm="Tem certeza que deseja {{ $additional->_status ? 'Ativar' : 'Desativar' }} este adicional?"
                                         >
 
                                             @csrf
@@ -250,10 +250,10 @@
                                             <button
                                                 type="submit"
                                                 class="btn btn-sm {{ $additional->_status ? 'btn-danger' : 'btn-success' }}"
-                                                title="{{ $additional->_status ? 'Desativar' : 'Ativar' }}"
+                                                title="{{ $additional->_status ? 'Ativar' : 'Desativar' }}"
                                             >
                                                
-                                                {{ $additional->status ? 'Desativar' : 'Ativar' }}
+                                                {{ $additional->_status ? 'Desativar' : 'Ativar' }}
                                             </button>
 
                                         </form>

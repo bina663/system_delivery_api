@@ -5,11 +5,13 @@ use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\AdditionalsController;
+use App\Http\Controllers\Admin\Config\BranchController;
+use App\Http\Controllers\Admin\Config\CouponsController;
 use App\Http\Controllers\Web\AuthController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Web\IndexController;
-use App\Models\products;
+
 
 Route::get('/', [IndexController::class, 'cardapio'])->name('cardapio');
 Route::get('/login', [IndexController::class, 'authentication'])
@@ -32,7 +34,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth'])->group(funct
     Route::patch('/orders/{order}/advance-status', [OrdersController::class, 'advanceStatus'])->name('orders.advance-status');
     Route::delete('/orders/{order}', [OrdersController::class, 'destroy'])->name('orders.destroy');
     Route::patch('/orders/{order}/pago', [OrdersController::class, 'marcarPago'])->name('orders.pago');
-
+    Route::patch('/orders/{order}/cancel', [OrdersController::class, 'cancel'])->name('orders.cancel');
 
     // Categorias
     Route::get('/categories', [CategoryController::class, 'categoryPainel'])
@@ -43,10 +45,10 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth'])->group(funct
         ->name('categories.order');
     Route::put('/categories/{id}', [CategoryController::class, 'updateCategory'])
         ->name('categories.update');
-    Route::delete('/categories/{id}', [CategoryController::class, 'deleteCategory'])
+    Route::delete('/categories/{id}', [CategoryController::class, 'deleteCategoryPermanently'])
         ->name('categories.destroy');
-    Route::delete('/categories', [CategoryController::class, 'destroyMultiple'])
-    ->name('categories.delete-multiple')
+    Route::patch('/categories/{id}/status', [CategoryController::class, 'toggleStatus'])
+        ->name('categories.toggle-status');
     ;
     
     // Produtos
@@ -56,10 +58,11 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth'])->group(funct
         ->name('products.create');
     Route::put('/products/{id}', [ProductsController::class, 'updateProducts'])
         ->name('products.update');
-    Route::delete('/products/{id}', [ProductsController::class, 'deleteproducts'])
+    Route::delete('/products/{id}', [ProductsController::class, 'deleteCategoryPermanently'])
         ->name('products.destroy');
     Route::patch('/products/{id}/status', [ProductsController::class, 'toggleStatus'])
         ->name('products.toggle-status');
+
     // Adicionais
     Route::get('/additionals', [AdditionalsController::class, 'additionalsPainel'])
         ->name('additionals.painel');
@@ -67,15 +70,22 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth'])->group(funct
         ->name('additionals.create');
     Route::put('/additionals/{id}', [AdditionalsController::class, 'updateAdditionals'])
         ->name('additionals.update');
-    Route::delete('/additionals/{id}', [AdditionalsController::class, 'deleteAdditionals'])
+    Route::delete('/additionals/{id}', [AdditionalsController::class, 'deleteCategoryPermanently'])
         ->name('additionals.destroy');
     Route::patch('/additionals/{id}/status', [AdditionalsController::class, 'toggleStatus'])
         ->name('additionals.toggle-status');
 
+    // Configurações da loja
+    Route::get('/settings/branch', [BranchController::class, 'branchPainel'])->name('branch.painel');
+    Route::put('/settings/branch', [BranchController::class, 'branchUpdate'])->name('branch.update');
 
-    Route::get('/store', [OrdersController::class, 'categoryPainel'])->name('store.painel');
-    
-    Route::get('/settings', [OrdersController::class, 'categoryPainel'])->name('settings.painel');
+    //Coupons
+    Route::post('/settings/branch/coupons', [CouponsController::class, 'createCoupon'])->name('coupons.create');
+    Route::put('/settings/branch/coupons/{coupon}', [CouponsController::class, 'updateCoupon'])->name('coupons.update');
+    Route::delete('/settings/branch/coupons/{coupon}', [CouponsController::class, 'deleteCoupon'])->name('coupons.destroy');
+    Route::patch('/settings/branch/coupons/{coupon}/status', [CouponsController::class, 'toggleStatus'])->name('coupons.toggle-status');
+    Route::patch('/settings/branch/coupons/{coupon}/reset-usage', [CouponsController::class, 'resetUsageCount'])->name('coupons.reset-usage');
+
 });
 
 Route::fallback(function () {

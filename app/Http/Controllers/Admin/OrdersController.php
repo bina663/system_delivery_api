@@ -38,6 +38,14 @@ class OrdersController extends Controller
             ->route('admin.orders.painel')
             ->with('success', "Pedido #{$order->order_number} atualizado para \"{$order->status_label}\".");
     }
+    public function cancel(ModelsOrders $order)
+    {
+        $order->update(['status' => ModelsOrders::STATUS_CANCELLED]);
+
+        return redirect()
+            ->route('admin.orders.painel')
+            ->with('success', "Pedido #{$order->order_number} cancelado.");
+    }
     public function destroy(ModelsOrders $order)
     {
         $order->update([

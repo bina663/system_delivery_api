@@ -9,46 +9,132 @@
 @section('content')
 <div class="container">
 
-    <h2 class="mt-4 mb-4">Hambúrgueres</h2>
-    
-    <div class="d-flex flex-wrap gap-4">
-        @foreach($products as $product)
-        
-            <div class="card" style="width: 18rem;">
-            <img
-                src="{{ asset('storage/products/' . $product->image) }}"
-                class="card-img-top"
-                alt="{{ $product->name }}">
-
-                <div class="card-body">
-                    <h5 class="card-title">{{ $product->name }}</h5>
-                    <p class="card-text">{{ $product->description }}</p>
-                    <p class="text-success">R$ {{ number_format($product->value, 2, ',', '.') }}</p>
-
-                    <div class="d-flex gap-2">
-                        <button
-                            class="btn btn-warning"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalCompleto"
-                        >
-                            Completos
-                        </button>
-
-                        <button
-                            class="btn btn-danger"
-                            onclick="adicionarCarrinho('{{ addslashes($product->name) }}', {{ $product->value }})"
-                        >
-                            Adicionar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+    <div class="cardapio-hero text-center p-5 mb-4">
+        <h1 class="cardapio-hero-title">Seja bem-vindo ao nosso Cardápio</h1>
+        <p class="cardapio-hero-subtitle">Escolha seus favoritos e monte seu pedido</p>
     </div>
 
-    {{-- CARRINHO --}}
-    <div id="carrinhoFixo" class="carrinho-fixo border bg-light shadow" style="display: none;">
-        <h5>Carrinho</h5>
+    @foreach($categories as $category)
+        <h2 class="mt-4">{{ $category->name }}</h2>
+
+        <div class="d-flex flex-wrap gap-4 mb-5">
+            @forelse($category->products as $product)
+
+                <div class="card" style="width: 18rem;">
+                    <img
+                        src="{{ asset('storage/' . $product->image) }}"
+                        class="card-img-top"
+                        alt="{{ $product->name }}">
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $product->name }}</h5>
+                        <p class="card-text">{{ $product->description }}</p>
+                        <p class="text-success">R$ {{ number_format($product->value, 2, ',', '.') }}</p>
+
+                        <div class="d-flex gap-2">
+                            @if($product->additionals->count() > 0)
+                                <button
+                                    class="btn btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalCompleto{{ $product->id }}"
+                                >
+                                    Complementos
+                                </button>
+                            @endif
+
+                            <button
+                                class="btn btn-danger"
+                                onclick="adicionarCarrinho('{{ addslashes($product->name) }}', {{ $product->value }})"
+                            >
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- MODAL COMPLEMENTOS (só existe se tiver additionals) --}}
+                @if($product->additionals->count() > 0)
+                    <div class="modal fade" id="modalCompleto{{ $product->id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Complementos — {{ $product->name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <p>Escolha os adicionais:</p>
+
+                                    @foreach($product->additionals as $additional)
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <input
+                                                    type="checkbox"
+                                                    class="add-check"
+                                                    id="add{{ $product->id }}_{{ $additional->id }}"
+                                                    data-price="{{ $additional->price }}"
+                                                    data-name="{{ addslashes($additional->name) }}"
+                                                    onchange="atualizarTotalCompleto({{ $product->id }}, {{ $product->value }})"
+                                                >
+                                                <label for="add{{ $product->id }}_{{ $additional->id }}"> {{ $additional->name }}</label>
+                                            </div>
+                                            <p class="text-success mb-0">+ R$ {{ number_format($additional->price, 2, ',', '.') }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="modal-footer d-flex justify-content-between align-items-center">
+                                    <p class="text-success mb-0">
+                                        R$ <span id="totalCompleto{{ $product->id }}">{{ number_format($product->value, 2, ',', '.') }}</span>
+                                    </p>
+
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Fechar
+                                        </button>
+
+                                        <button
+                                            class="btn btn-success"
+                                            onclick="confirmarCompleto({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->value }})"
+                                            data-bs-dismiss="modal"
+                                        >
+                                            Confirmar
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+            @empty
+                <p class="text-muted">Nenhum item nessa categoria.</p>
+            @endforelse
+        </div>
+    @endforeach
+
+    {{-- OVERLAY (fecha o carrinho ao clicar fora) --}}
+    <div id="carrinhoOverlay" class="carrinho-overlay" style="display: none;" onclick="fecharCarrinho()"></div>
+
+    {{-- BOTÃO FLUTUANTE CENTRALIZADO --}}
+    <button id="carrinhoBotao" class="carrinho-botao" style="display: none;" onclick="abrirCarrinho()">
+        <span class="badge-count" id="carrinhoQtd">0</span>
+        <span>Ver carrinho</span>
+        <span class="badge-total">R$ <span id="carrinhoTotalBotao">0,00</span></span>
+    </button>
+
+    {{-- PAINEL DO CARRINHO (bottom sheet) --}}
+    <div id="carrinhoFixo" class="carrinho-fixo shadow" style="display: none;">
+        <div class="carrinho-handle"></div>
+
+        <div class="carrinho-header">
+            <h5>Seu carrinho</h5>
+            <button class="btn-close-carrinho" onclick="fecharCarrinho()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
         <ul class="list-unstyled" id="carrinhoLista"></ul>
 
@@ -64,62 +150,8 @@
         </div>
     </div>
 
-    {{-- MODAL COMPLETO --}}
-    <div class="modal fade" id="modalCompleto" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Completos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <p>Escolha os adicionais:</p>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <input type="checkbox" id="addQueijo" onchange="atualizarTotalCompleto()">
-                            <label for="addQueijo"> Queijo extra</label>
-                        </div>
-                        <p class="text-success mb-0">+ R$ 5,00</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <input type="checkbox" id="addBacon" onchange="atualizarTotalCompleto()">
-                            <label for="addBacon"> Bacon extra</label>
-                        </div>
-                        <p class="text-success mb-0">+ R$ 7,00</p>
-                    </div>
-                </div>
-
-                <div class="modal-footer d-flex justify-content-between align-items-center">
-                    <p class="text-success mb-0">R$ <span id="totalCompleto">20,00</span></p>
-
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">
-                            Fechar
-                        </button>
-
-                        <button
-                            class="btn btn-success"
-                            onclick="confirmarCompleto()"
-                            data-bs-dismiss="modal"
-                        >
-                            Confirmar
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
     {{-- WHATSAPP --}}
-    <a
+    
         id="whatsappLink"
         href="#"
         target="_blank"
@@ -131,9 +163,7 @@
 </div>
 
 <script>
-    // Telefone vindo do backend (ex: model Config)
     const PHONE = "{{ $config->phone ?? '' }}";
-    const PRECO_BASE = 20;
 
     let carrinho = [];
 
@@ -141,39 +171,33 @@
         return Number(valor).toFixed(2).replace('.', ',');
     }
 
-    // ===== COMPLETO (adicionais) =====
-    function atualizarTotalCompleto() {
-        let total = PRECO_BASE;
+    // ===== COMPLEMENTOS DINÂMICOS =====
+    function atualizarTotalCompleto(productId, precoBase) {
+        let total = Number(precoBase);
 
-        if (document.getElementById('addQueijo').checked) total += 5;
-        if (document.getElementById('addBacon').checked) total += 7;
+        document.querySelectorAll(`#modalCompleto${productId} .add-check:checked`).forEach(chk => {
+            total += parseFloat(chk.dataset.price);
+        });
 
-        document.getElementById('totalCompleto').innerText = formatarMoeda(total);
+        document.getElementById(`totalCompleto${productId}`).innerText = formatarMoeda(total);
     }
 
-    function confirmarCompleto() {
-        const queijo = document.getElementById('addQueijo').checked;
-        const bacon = document.getElementById('addBacon').checked;
-
+    function confirmarCompleto(productId, nomeBase, precoBase) {
+        let total = Number(precoBase);
         let extras = [];
-        let preco = PRECO_BASE;
 
-        if (queijo) {
-            extras.push('Queijo');
-            preco += 5;
-        }
+        document.querySelectorAll(`#modalCompleto${productId} .add-check:checked`).forEach(chk => {
+            extras.push(chk.dataset.name);
+            total += parseFloat(chk.dataset.price);
+        });
 
-        if (bacon) {
-            extras.push('Bacon');
-            preco += 7;
-        }
+        const nome = nomeBase + (extras.length ? ' (' + extras.join(', ') + ')' : '');
+        adicionarCarrinho(nome, total);
 
-        const nome = 'Burger ' + (extras.length ? '(' + extras.join(', ') + ')' : '');
-        adicionarCarrinho(nome, preco);
-
-        document.getElementById('addQueijo').checked = false;
-        document.getElementById('addBacon').checked = false;
-        atualizarTotalCompleto();
+        document.querySelectorAll(`#modalCompleto${productId} .add-check`).forEach(chk => {
+            chk.checked = false;
+        });
+        atualizarTotalCompleto(productId, precoBase);
     }
 
     // ===== CARRINHO =====
@@ -188,13 +212,14 @@
             carrinho.push({ nome, preco, quantidade: 1 });
         }
 
-        document.getElementById('carrinhoFixo').style.display = 'block';
+        document.getElementById('carrinhoBotao').style.display = 'flex';
         renderCarrinho();
     }
 
     function limparCarrinho() {
         carrinho = [];
         renderCarrinho();
+        fecharCarrinho();
     }
 
     function calcularTotalCarrinho() {
@@ -202,6 +227,10 @@
             (total, i) => total + (Number(i.preco) * i.quantidade),
             0
         );
+    }
+
+    function calcularQtdCarrinho() {
+        return carrinho.reduce((total, i) => total + i.quantidade, 0);
     }
 
     function renderCarrinho() {
@@ -214,8 +243,35 @@
             lista.appendChild(li);
         });
 
-        document.getElementById('carrinhoTotal').innerText = formatarMoeda(calcularTotalCarrinho());
+        const total = calcularTotalCarrinho();
+        const qtd = calcularQtdCarrinho();
+
+        document.getElementById('carrinhoTotal').innerText = formatarMoeda(total);
+        document.getElementById('carrinhoTotalBotao').innerText = formatarMoeda(total);
+        document.getElementById('carrinhoQtd').innerText = qtd;
+
+        if (qtd === 0) {
+            document.getElementById('carrinhoBotao').style.display = 'none';
+            fecharCarrinho();
+        }
+
         atualizarLinkWhatsApp();
+    }
+
+    // ===== ABRIR / FECHAR PAINEL =====
+    function abrirCarrinho() {
+        document.getElementById('carrinhoFixo').style.display = 'block';
+        document.getElementById('carrinhoOverlay').style.display = 'block';
+        document.getElementById('carrinhoBotao').style.display = 'none';
+    }
+
+    function fecharCarrinho() {
+        document.getElementById('carrinhoFixo').style.display = 'none';
+        document.getElementById('carrinhoOverlay').style.display = 'none';
+
+        if (calcularQtdCarrinho() > 0) {
+            document.getElementById('carrinhoBotao').style.display = 'flex';
+        }
     }
 
     function realizarPagamento() {
@@ -226,7 +282,6 @@
 
         alert(`Pagamento realizado!\nTotal: R$ ${formatarMoeda(calcularTotalCarrinho())}`);
         limparCarrinho();
-        document.getElementById('carrinhoFixo').style.display = 'none';
     }
 
     // ===== WHATSAPP =====

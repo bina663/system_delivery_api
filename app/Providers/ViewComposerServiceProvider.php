@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use App\Models\Branch as ModelsBranch;
 
 class ViewComposerServiceProvider extends ServiceProvider
 {
@@ -20,9 +21,8 @@ class ViewComposerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('template.admin', function ($view) {
-            //$view->with('storeName', Config::first()->name ?? 'Ki Burguer');
-            $view->with('storeName', 'Ki Burguer');
+        View::composer('*', function ($view) {
+            $view->with('globalBranch', ModelsBranch::find(1));
         });
     }
 }

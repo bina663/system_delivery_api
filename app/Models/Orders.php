@@ -10,6 +10,7 @@ class Orders extends Model
     public const STATUS_PREPARING   = 'preparing';
     public const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
     public const STATUS_DELIVERED   = 'delivery';
+    public const STATUS_CANCELLED   = 'cancelled';
 
     // Define a ordem do fluxo
     public const STATUS_FLOW = [
@@ -17,6 +18,7 @@ class Orders extends Model
         self::STATUS_PREPARING,
         self::STATUS_OUT_FOR_DELIVERY,
         self::STATUS_DELIVERED,
+        Self::STATUS_CANCELLED,
     ];
     protected $fillable = [
         'customer_id',
@@ -47,6 +49,7 @@ class Orders extends Model
             self::STATUS_PREPARING        => 'Preparando',
             self::STATUS_OUT_FOR_DELIVERY => 'Saiu para entrega',
             self::STATUS_DELIVERED        => 'Entregue',
+            self::STATUS_CANCELLED        => 'Cancelado',
             default => $this->status,
         };
     }
@@ -58,6 +61,7 @@ class Orders extends Model
             self::STATUS_PREPARING        => 'text-light bg-warning',
             self::STATUS_OUT_FOR_DELIVERY => 'text-light bg-info',
             self::STATUS_DELIVERED        => 'text-light bg-success',
+            self::STATUS_CANCELLED        => 'text-light bg-danger',
             default => 'text-dark bg-secondary',
         };
     }
@@ -68,6 +72,7 @@ class Orders extends Model
             self::STATUS_PREPARING        => 'Iniciar preparo',
             self::STATUS_OUT_FOR_DELIVERY => 'Saiu para entrega',
             self::STATUS_DELIVERED        => 'Marcar como entregue',
+            self::STATUS_CANCELLED        => 'Marcar como cancelado',
             default => null,
         };
     }

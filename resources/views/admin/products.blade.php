@@ -118,7 +118,7 @@
                         @foreach($categories as $category)
 
                             <option value="{{ $category->id }}">
-                                {{ $category->name }}
+                                {{ $category->name }}{{ $category->_status ? ' (Ativo)' : ' (Inativo)' }}
                             </option>
 
                         @endforeach
@@ -217,7 +217,7 @@
                                 class="product-row"
                                 data-name="{{ strtolower($product->name) }}"
                                 data-category="{{ $product->category_id }}"
-                                data-status="{{ $product->status ? '1' : '0' }}"
+                                data-status="{{ $product->_status ? '1' : '0' }}"
                             >
 
                                 {{-- IMAGEM --}}
@@ -275,10 +275,10 @@
                                 {{-- CATEGORIA --}}
                                 <td>
 
-                                    @if($product->category)
+                                    @if($product->categories)
 
-                                        <span class="badge bg-light text-dark">
-                                            {{ $product->category->name }}
+                                        <span class="badge text-light {{ $product->categories->_status ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $product->categories->name }} {{ $product->categories->_status ? '(Ativo)' : ' (Inativo)' }}
                                         </span>
 
                                     @else
@@ -325,7 +325,7 @@
                                 {{-- STATUS --}}
                                 <td>
 
-                                    @if($product->status)
+                                    @if($product->_status)
 
                                         <span class="badge bg-success">
                                             Ativo
@@ -363,20 +363,20 @@
                                             class="toggle-status-form"
                                             action="{{ route('admin.products.toggle-status', $product->id) }}"
                                             method="POST"
-                                            data-confirm="Tem certeza que deseja {{ $product->status ? 'desativar' : 'ativar' }} este produto?"
+                                            data-confirm="Tem certeza que deseja {{ $product->_status ? 'desativar' : 'ativar' }} este produto?"
                                         >
 
                                             @csrf
                                             @method('PATCH')
 
-                                            <input type="hidden" name="_status" value="{{ $product->status ? 0 : 1 }}">
+                                            <input type="hidden" name="_status" value="{{ $product->_status ? 0 : 1 }}">
 
                                             <button
                                                 type="submit"
-                                                class="btn btn-sm {{ $product->status ? 'btn-danger' : 'btn-success' }}"
-                                                title="{{ $product->status ? 'Desativar' : 'Ativar' }}"
+                                                class="btn btn-sm {{ $product->_status ? 'btn-danger' : 'btn-success' }}"
+                                                title="{{ $product->_status ? 'Desativar' : 'Ativar' }}"
                                             >
-                                                {{ $product->status ? 'Desativar' : 'Ativar' }}
+                                                {{ $product->_status ? 'Desativar' : 'Ativar' }}
                                             </button>
 
                                         </form>
@@ -545,7 +545,7 @@
                                 @foreach($categories as $category)
 
                                     <option value="{{ $category->id }}">
-                                        {{ $category->name }}
+                                        {{ $category->name }}{{ $category->_status ? ' (Ativo)' : ' (Inativo)' }}
                                     </option>
 
                                 @endforeach
@@ -883,14 +883,14 @@
 
                                 <option
                                     value="1"
-                                    {{ $product->status ? 'selected' : '' }}
+                                    {{ $product->_status ? 'selected' : '' }}
                                 >
                                     Ativo
                                 </option>
 
                                 <option
                                     value="0"
-                                    {{ !$product->status ? 'selected' : '' }}
+                                    {{ !$product->_status ? 'selected' : '' }}
                                 >
                                     Inativo
                                 </option>

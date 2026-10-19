@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function categoryPainel()
     {
-            $categories = ModelsCategories::where('_status', true)->orderBy('sort_order', 'asc')
+            $categories = ModelsCategories::orderBy('sort_order', 'asc')
             ->get();
 
         return view('admin.categories', compact('categories'));
@@ -34,6 +34,8 @@ class CategoryController extends Controller
             ->route('admin.category.painel')
             ->with('success', 'Categoria atualizada com sucesso!');
     }
+
+
     public function updateOrder(Request $request)
     {
         $categories = $request->input('categories');
@@ -46,45 +48,35 @@ class CategoryController extends Controller
                 ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Ordem das categorias atualizada com sucesso!'
-        ]);
+        return redirect()
+                ->route('admin.category.painel')
+                ->with('success', 'Ordem das categorias atualizada com sucesso!');
     }
-    public function deleteCategory(Request $request, $id)
+    public function deleteCategoryPermanently(Request $request, $id)
     {
         try {
             $category = ModelsCategories::findOrFail($id);
 
-            $category->update([
-                '_status' => false,
-            ]);
+            $category->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Categoria deletada com sucesso!'
-            ]);
+            return redirect()
+                ->route('admin.category.painel')
+                ->with('success', 'Categoria deletada com sucesso!');
 
         } catch (Exception $e) {
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao deletar categoria.'
-            ], 500);
+            return redirect()
+                ->route('admin.category.painel')
+                ->with('error', 'Erro ao deletar categoria.');
         }
     }
-    public function destroyMultiple(Request $request)
+    public function toggleStatus(Request $request, $id)
     {
-        $ids = $request->input('ids');
+        $category = ModelsCategories::findOrFail($id);
+        $category->_status = $request->_status;
+        $category->save();
 
-        ModelsCategories::whereIn('id', $ids)
-            ->update([
-                '_status' => false,
-            ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Categorias excluídas com sucesso!'
-        ]);
+        return response()->json(['success' => true]);
     }
+
 }
